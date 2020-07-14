@@ -17,8 +17,7 @@ Converts a public YouTube playlist which contains songs to a Spotify Playlist li
   - The YouTube playlist must be **public**
   - If you want to create a new Spotify Playlist you must enter a name for the playlist that is different from the other play list you own 
     
-    - Example: If you have 2 playlist **songs** and **favorites** and you want to create a listlist call **youtube** type **youtube** when asked to select  
-           a spotify playlist
+    - Example: If you have 2 playlist **songs** and **favorites** and you want to create a listlist call **youtube** type **youtube** when asked to select a spotify playlist
   - If you want to add to an existing playlist select a playlist name which you already own
   - Playlist in spotify can be public or private but must be owned by you
   - If a song is already in the playlist it will not be added again (one copy of a song for playlist)
