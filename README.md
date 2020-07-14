@@ -8,14 +8,15 @@ Converts a YouTube playlist which contains songs to Spotify. It creates a new or
   - A **YOUTUBE_CHANNEL_ID** which you can get from YouTube. Just copy the channel id from the URL
 
 # How to use
-  - Fill in the needed information in the **client** file
-  - Then run **python3 YouTubeToSpotify.py**
-  - Respond to the prompts in the console (make sure you spell the playlist names correctly)
+  1. Fill in the needed information in the **client** file
+  2. Then run **python3 YouTubeToSpotify.py**
+  3. Respond to the prompts in the console (make sure you spell the playlist names correctly)
 
 # Notes
   - You must pick an existing YouTube playlist to import
   - The YouTube playlist must be **public**
-  - If you want to create a new Spotify Playlist you must enter a name for the playlist that is different from the other play list you own EX: If you have 2 playlist **songs** and **favorites** and you want to create a listlist call **youtube** type **youtube** when asked to select  
+  - If you want to create a new Spotify Playlist you must enter a name for the playlist that is different from the other play list you own 
+    -EX: If you have 2 playlist **songs** and **favorites** and you want to create a listlist call **youtube** type **youtube** when asked to select  
            a spotify playlist
   - If you want to add to an existing playlist select a playlist name which you already own
   - Playlist in spotify can be public or private but must be owned by you
