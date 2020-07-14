@@ -1,0 +1,5 @@
+SPOTIPY_CLIENT_ID <Please replace with your Spotify client ID>
+SPOTIPY_CLIENT_SECRET <Please replace with your Spotify client secret>
+SPOTIPY_REDIRECT_URI http://127.0.0.1:8000
+YOUTUBE_API_KEY <Please replace with your youtube api key>
+YOUTUBE_CHANNEL_ID <Please replace with the channel id of the public playlist (If the playlist is owned by you please put your own channel ID)>
