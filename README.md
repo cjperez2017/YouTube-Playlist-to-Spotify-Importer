@@ -1,5 +1,5 @@
 # YouTube-Playlist-to-Spotify-Importer
-Converts a YouTube playlist which contains songs to Spotify. It creates a new or appends to an old playlist.
+Converts a public YouTube playlist which contains songs to a Spotify Playlist linked to your account.
 
 # What you will need:
   - A **SPOTIPY_CLIENT_ID** which you can get from the developers page from Spotify
