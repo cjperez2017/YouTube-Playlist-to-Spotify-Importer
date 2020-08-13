@@ -9,8 +9,9 @@ Converts a public YouTube playlist which contains songs to a Spotify Playlist li
 
 # How to use
   1. Fill in the needed information in the **client** file
-  2. Then run **python3 YouTubeToSpotify.py**
-  3. Respond to the prompts in the console (make sure you spell the playlist names correctly)
+  2. Run the command **pip install youtube-title-parse**
+  3. Then run **python3 YouTubeToSpotify.py**
+  4. Respond to the prompts in the console (make sure you spell the playlist names correctly)
 
 # Notes
   - You must pick an existing YouTube playlist to import
