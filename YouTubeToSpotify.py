@@ -96,21 +96,42 @@ def get_youtube_playlist():
         )
         response = request.execute()
         channel_name = response['items'][0]['snippet']['title']
-        video_title = video_title.replace('(Official Audio)', '').replace(',', '')
+        video_title = video_title.replace('(Official Audio)', '')
+        if '|' in video_title:
+            video_title = video_title[:video_title.index('|')]
         channel_name = channel_name.replace('- Topic', '').replace(',', '')
         songs[(video_title, channel_name)] = get_artist_title(video_title)
 
     songs = fix_artist_and_song_prediction(songs)
-    # print_spreadsheet(songs)
+    print_spreadsheet(songs)
     return songs.values()
 
+def is_int(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
 
 def fix_artist_and_song_prediction(songs):
     for x in songs.keys():
         if songs[x] is None:
             songs[x] = (x[1], x[0])
+        if is_int(songs[x][0]):
+            songs[x] = (x[1], x[0])
+        lamPlace = lambda a: a.replace(', ', '').lower()
         title, switch = song_parser(songs[x][1])
         artist, feat = artist_parser(songs[x][0])
+
+        title = lamPlace(title)
+        artist = lamPlace(artist)
+
+        no_ft = title
+        if 'ft' in no_ft:
+            no_ft = no_ft[:no_ft.index('ft')]
+        if no_ft.replace(' ', '') in x[1].replace(' ', '').lower():
+            switch = 'switch'
+
         if switch == 'switch':
             temp = copy.copy(artist)
             artist = title
@@ -125,7 +146,14 @@ def print_spreadsheet(songs):
     f = open('../example2.csv', 'w')
     f.writelines('Title, Channel Name, Artist, Song Name\n')
     for x in songs.keys():
-        ex = x[0] + ', ' + x[1] + ', ' + songs[x][1] + ', ' + songs[x][0] + '\n'
+        parts = (x[0], x[1], songs[x][1], songs[x][0])
+        ex = ''
+        for part in parts:
+            if ',' in part:
+                ex = ex + '"' + part + '", '
+            else:
+                ex = ex + part + ', '
+        ex = ex + '\n'
         f.writelines(ex)
 
 
@@ -193,11 +221,11 @@ def make_track_list(songs, s):
                         all_artist_tracks[track['name'].lower()] = track['id']
                 except spotipy.exceptions.SpotifyException:
                     pass
-
+        # print(artist)
+        # print(all_artist_tracks)
         track_id = select_matching_track(all_artist_tracks, track_adding.lower(), features)
         if track_id is not None:
             track_list.append(track_id)
-
     return track_list
 
 
@@ -227,7 +255,10 @@ def select_matching_track(all_artist_tracks, track_adding, features):
                 if word_a == word_b:
                     match_count += 1
                 else:
-                    match_count -= .00001
+                    match_count -= .001
+        if 'live' in track_name and 'live' not in track or 'live' not in track_name and 'live' in track:
+            match_count -= 0.01
+
 
         if match_count > best_match[0]:
             best_match = (match_count, all_artist_tracks[key])
@@ -246,21 +277,26 @@ def artist_parser(artist):
              2nd val is a bool that is True if the artist includes features
     """
     artist = artist.lower()
+    feat = False
     if 'ft' in artist:
         artist = artist.split(' ft ')
     elif 'feat.' in artist:
         artist = artist.split(' feat. ')
     elif 'feat' in artist:
         artist = artist.split(' feat ')
+    elif ',' in artist:
+        artist = artist.split(', ')
+
     if type(artist) is list:
         main = artist[0]
+        feat = True
         artist = " ".join(artist[1:])
         artist = main + ' ft ' + artist
     if artist[-1] == ' ':
         while artist[-1] == ' ':
             artist = artist[:-1]
-    print(artist)
-    return artist, False
+    # print(artist)
+    return artist, feat
 
 
 def song_parser(song):
