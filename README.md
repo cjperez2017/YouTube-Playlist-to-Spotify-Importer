@@ -26,5 +26,5 @@ Converts a public YouTube playlist which contains songs to a Spotify Playlist li
   - Mistakes are possible, double checking the playlist is encouraged 
   - Mispellings or different spelling between a video on YouTube and a track on Spotify may lead to the selection of the song song
   
-    - Example: YouTube Video Name -> **Pa Mi** \Spotify Track Name -> **Pa Mí**
+    - Example: YouTube Video Name -> **Pa Mi**\ Spotify Track Name -> **Pa Mí**
   
