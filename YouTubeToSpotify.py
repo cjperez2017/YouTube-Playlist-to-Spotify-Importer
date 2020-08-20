@@ -27,7 +27,7 @@ def main():
 
 
 def environment_setup():
-    f = open('../client', 'r')
+    f = open('client', 'r')
     for line in f.readlines():
         client = line.split(' ')
         client[1] = client[1].replace('\n', '')
@@ -143,7 +143,7 @@ def fix_artist_and_song_prediction(songs):
 
 
 def print_spreadsheet(songs):
-    f = open('../example2.csv', 'w')
+    f = open('song_list.csv', 'w')
     f.writelines('Title, Channel Name, Artist, Song Name\n')
     for x in songs.keys():
         parts = (x[0], x[1], songs[x][1], songs[x][0])
@@ -155,6 +155,7 @@ def print_spreadsheet(songs):
                 ex = ex + part + ', '
         ex = ex + '\n'
         f.writelines(ex)
+    # exit()
 
 
 def add_to_spotify(songs, s, playlist_name, list_id):
@@ -258,7 +259,11 @@ def select_matching_track(all_artist_tracks, track_adding, features):
                     match_count -= .001
         if 'live' in track_name and 'live' not in track or 'live' not in track_name and 'live' in track:
             match_count -= 0.01
+        if 'remix' in track_name and 'remix' not in track or 'remix' not in track_name and 'remix' in track:
+            match_count -= 0.01
 
+        if 'pa mi' in track_name and match_count > .7:
+            print(track, match_count)
 
         if match_count > best_match[0]:
             best_match = (match_count, all_artist_tracks[key])
@@ -286,6 +291,8 @@ def artist_parser(artist):
         artist = artist.split(' feat ')
     elif ',' in artist:
         artist = artist.split(', ')
+    elif ' x ' in artist:
+        artist = artist.split(' x ')
 
     if type(artist) is list:
         main = artist[0]
@@ -325,10 +332,10 @@ def song_parser(song):
         switch = 'change to (' + art + ')'
         song = song.replace('by ', '').replace(art + ' ', '')
 
-    if '(' in song and ')' in song:
-        i_open = song.index('(')
-        i_close = song.index(')')
-        song = song[:i_open] + song[i_close + 1:]
+    # if '(' in song and ')' in song:
+    #     i_open = song.index('(')
+    #     i_close = song.index(')')
+    #     song = song[:i_open] + song[i_close + 1:]
 
     if song[-1] == ' ':
         while song[-1] == ' ':
