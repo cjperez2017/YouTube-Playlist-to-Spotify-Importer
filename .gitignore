@@ -1,4 +1,6 @@
 .env
 .pyc
 .cache
-.DS_Store
+.DS_store
+.idea
+__pycache__
