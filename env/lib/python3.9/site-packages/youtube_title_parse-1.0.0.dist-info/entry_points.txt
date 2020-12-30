@@ -1,0 +1,3 @@
+[console_scripts]
+youtube_title_parse = youtube_title_parse.parse:main
+

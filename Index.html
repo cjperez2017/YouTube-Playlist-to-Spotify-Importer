@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Set Up</title>
+<meta charset="utf-8">
+</head>
+<body>
+
+<h1>Index</h1>
+
+<form action='/check-setup' class="check-setup" id="check-setup">
+  <input type="submit" value="Check Setup Correct">
+</form>
+
+<h4>Tokens created: Setup correct</h4>
+<h4>Token creation failed: Setup needs to be completed</h4>
+<a href="Setup.html">Setup page</a>
+<br/><br/>
+<div id="select-youtube-playlist">
+  <h3>Select the youtube playlist you want to import to spotify</h3>
+  {{list_youtube_playlist}}
+</div>
+
+<div id="select-spotify-playlist">
+  <h3>Select the spotify you want to add the song to, if you want to create a new playlist scroll down to the input</h3>
+  {{list_spotify_playlist}}
+
+<form action='/spotify-new-playlist' class="spotify-new-playlist id="spotify-new-playlist">
+  <label for="spotify-new-playlist"> If you want to create a new playlist, please enter  a name here: </label>
+  <input type="text" id="spotify-new-playlist" name="spotify-new-playlist">
+  <input type="submit" value="Submit">
+</form>
+
+</div>
+
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="Script.js"></script>
+</html>
