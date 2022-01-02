@@ -1,0 +1,7 @@
+.env
+.pyc
+.cache
+.DS_store
+.idea
+__pycache__
+client

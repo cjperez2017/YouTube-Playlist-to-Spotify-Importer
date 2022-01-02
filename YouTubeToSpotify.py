@@ -6,7 +6,7 @@ from googleapiclient.discovery import build
 from youtube_title_parse import get_artist_title
 import copy
 import sys
-
+from Utils import make_file_copy
 
 def main():
     environment_setup()
@@ -25,7 +25,6 @@ def main():
     list_id = spotify_playlist_names.get(playlist_name, False)
     add_to_spotify(songs, s, playlist_name, list_id)
 
-
 def environment_setup():
     f = open('client', 'r')
     for line in f.readlines():
@@ -35,23 +34,95 @@ def environment_setup():
         os.environ[env_var_name] = client[1]
     f.close()
 
+def setup():
+    environment_setup()
+    token, username = spotify_tokens()
+    s = spotipy.Spotify(token)
+
+    songs = get_youtube_playlist_site()
+
+    return songs, s
+
+def get_youtube_playlist_site():
+    api_key = os.environ['YOUTUBE_API_KEY']
+    youtube = build('youtube', 'v3', developerKey=api_key)
+
+    request = youtube.playlists().list(
+        part='snippet',
+        channelId=os.environ['YOUTUBE_CHANNEL_ID'],
+        maxResults=50
+    )
+    response = request.execute()
+    print('youtube_playlist')
+    print('----------------')
+    playlist = {}
+    for item in response['items']:
+        playlist[item['snippet']['title']] = item['id']
+        print(item['snippet']['title'])
+    return playlist
+
+def get_songs_from_playlist_id(playlist_id):
+    request = youtube.playlistItems().list(
+        part='snippet',
+        playlistId=playlist_id,
+        maxResults=50
+    )
+    response = request.execute()
+
+    songs = {}
+    for item in response['items']:
+        video_title = item['snippet']['title']
+        video_id = item['snippet']['resourceId']['videoId']
+        request = youtube.videos().list(
+            part='snippet',
+            id=video_id
+        )
+        response = request.execute()
+        channel_id = response['items'][0]['snippet']['channelId']
+        request = youtube.channels().list(
+            part='snippet',
+            id=channel_id
+        )
+        response = request.execute()
+        channel_name = response['items'][0]['snippet']['title']
+        video_title = video_title.replace('(Official Audio)', '')
+        if '|' in video_title:
+            video_title = video_title[:video_title.index('|')]
+        channel_name = channel_name.replace('- Topic', '').replace(',', '')
+        songs[(video_title, channel_name)] = get_artist_title(video_title)
+
+    songs = fix_artist_and_song_prediction(songs)
+    return songs.values()
+
+def get_spotify_playlist(spotify_token):
+    spotify_playlist_names = {}
+    username = os.environ['SPOTIFY_USERNAME']
+    print('spotify_playlist')
+    print('----------------')
+    for item in spotify_token.current_user_playlists()['items']:
+        if item['owner']['id'] == username:
+            spotify_playlist_names[item['name']] = item['id']
+            print(item['name'])
+    return spotify_playlist_names
+
+def edit_client(property_name, property_info):
+    file_copy, path = make_file_copy('client')
+    file = open('client', 'w')
+    for line in file_copy:
+        print(line)
+        split_line = line.split(' ')
+        print(split_line)
+        if property_name == split_line[0]:
+            file.write(property_name + ' ' + property_info + '\n')
+        else:
+            file.write(line)
+    file_copy.close()
+    file.close()
+    os.system('rm client_copy')
 
 def spotify_tokens():
     scope = 'playlist-read-private playlist-modify-private playlist-modify-public'
-
-    if not ('user_info.txt' in os.listdir()):
-        username = input("What is your Spotify username?: ")
-
-        response = input('Would you like to save your username? (yes/no): ')
-        if response == 'y' or response == 'yes':
-            os.system('touch user_info.txt')
-            f = open('../user_info.txt', 'w')
-            f.write(username)
-    else:
-        f = open('../user_info.txt', 'r')
-        username = f.read()
-
-    os.environ['SPOTIFY_USER_ID'] = username
+    username = os.environ['SPOTIFY_USERNAME']
     token = util.prompt_for_user_token(username, scope)
     return (token, username)
 
@@ -62,10 +133,10 @@ def get_youtube_playlist():
 
     request = youtube.playlists().list(
         part='snippet',
-        channelId=os.environ['YOUTUBE_CHANNEL_ID']
+        channelId=os.environ['YOUTUBE_CHANNEL_ID'],
+        maxResults=50
     )
     response = request.execute()
-
     playlist = {}
     for item in response['items']:
         playlist[item['snippet']['title']] = item['id']
@@ -76,7 +147,7 @@ def get_youtube_playlist():
     request = youtube.playlistItems().list(
         part='snippet',
         playlistId=playlist_id,
-        maxResults=100
+        maxResults=50
     )
     response = request.execute()
 
@@ -106,12 +177,14 @@ def get_youtube_playlist():
     print_spreadsheet(songs)
     return songs.values()
 
+
 def is_int(s):
     try:
         int(s)
         return True
     except ValueError:
         return False
+
 
 def fix_artist_and_song_prediction(songs):
     for x in songs.keys():
@@ -159,10 +232,10 @@ def print_spreadsheet(songs):
 
 
 def add_to_spotify(songs, s, playlist_name, list_id):
-
-    username = os.environ['SPOTIFY_USER_ID']
+    username = os.environ['SPOTIFY_USERNAME']
     if list_id is False:
-        response = input('Would you like this playlist to be public and/or to put a description? (yes/no) (yes/no) ex: "yes yes" or "no yes": ')
+        response = input(
+            'Would you like this playlist to be public and/or to put a description? (yes/no) (yes/no) ex: "yes yes" or "no yes": ')
         response = response.split(' ')
         if response[0] == 'yes' or response[0] == 'y':
             public = True
@@ -177,9 +250,10 @@ def add_to_spotify(songs, s, playlist_name, list_id):
                 list_id = item['id']
                 break
 
-    new_tracks = make_track_list(songs, s) # put song ids in here
+    new_tracks = make_track_list(songs, s)  # put song ids in here
     if len(s.user_playlist(username, playlist_id=list_id)['tracks']['items']) > 0:
-        tracks_in_playlist = [x['track']['id'] for x in s.user_playlist(username, playlist_id=list_id)['tracks']['items']]
+        tracks_in_playlist = [x['track']['id'] for x in
+                              s.user_playlist(username, playlist_id=list_id)['tracks']['items']]
         new_tracks = [track for track in new_tracks if track not in tracks_in_playlist]
     if len(new_tracks) > 0:
         s.user_playlist_add_tracks(username, list_id, new_tracks)
@@ -269,7 +343,7 @@ def select_matching_track(all_artist_tracks, track_adding, features):
             best_match = (match_count, all_artist_tracks[key])
 
     if best_match[1] is None:
-        print('\"'+track_name+'\"', 'could not be found')
+        print('\"' + track_name + '\"', 'could not be found')
 
     return best_match[1]
 
